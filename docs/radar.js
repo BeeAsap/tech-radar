@@ -20,6 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+let currentlyVisibleDescriptionId = null;
 
 function radar_visualization(config) {
 
@@ -27,8 +28,8 @@ function radar_visualization(config) {
   config.width = config.width || 1450;
   config.height = config.height || 1000;
   config.colors = ("colors" in config) ? config.colors : {
-      background: "#fff",
-      grid: '#dddde0',
+      background: "#ffffffff",
+      grid: '#c3c3c3',
       inactive: "#ddd"
     };
   config.print_layout = ("print_layout" in config) ? config.print_layout : true;
@@ -221,7 +222,7 @@ function radar_visualization(config) {
   var grid = radar.append("g");
 
   // define default font-family
-  config.font_family = config.font_family || "Arial, Helvetica";
+  config.font_family = config.font_family || "Segoe UI";
 
   // draw grid lines
   grid.append("line")
@@ -301,13 +302,13 @@ function radar_visualization(config) {
       .style("font-weight", "bold")
 
     // date
-    radar
-      .append("text")
-      .attr("transform", translate(config.title_offset.x, config.title_offset.y + 20))
-      .text(config.date || "")
-      .style("font-family", config.font_family)
-      .style("font-size", "14")
-      .style("fill", "#999")
+    // radar
+    //   .append("text")
+    //   .attr("transform", translate(config.title_offset.x, config.title_offset.y + 20))
+    //   .text(config.date || "")
+    //   .style("font-family", config.font_family)
+    //   .style("font-size", "14")
+    //   .style("fill", "#999")
 
     // footer
     radar.append("text")
@@ -474,6 +475,31 @@ function radar_visualization(config) {
     legendItem.removeAttribute("fill");
   }
 
+  function showDescription(d) {
+    const box = document.getElementById("bubble-description");
+    if (!box) return;
+
+    if (currentlyVisibleDescriptionId === d.id) {
+      box.style.display = "none";
+      currentlyVisibleDescriptionId = null;
+      return;
+    }
+
+    const svg = document.getElementById(config.svg_id);
+    const svgRect = svg.getBoundingClientRect();
+
+    const x = d.x * config.scale + svgRect.left + config.width / 2;
+    const y = d.y * config.scale + svgRect.top + config.height / 2;
+
+    box.innerHTML = `<strong>${d.label}</strong><br>${d.description || "No description provided."}`;
+    box.style.left = `${x + 15}px`;
+    box.style.top = `${y - 15}px`;
+    box.style.display = "block";
+
+    currentlyVisibleDescriptionId = d.id;
+  }
+
+
   // draw blips on radar
   var blips = rink.selectAll(".blip")
     .data(config.entries)
@@ -482,7 +508,8 @@ function radar_visualization(config) {
         .attr("class", "blip")
         .attr("transform", function(d, i) { return legend_transform(d.quadrant, d.ring, config.legend_column_width, i); })
         .on("mouseover", function(event, d) { showBubble(d); highlightLegendItem(d); })
-        .on("mouseout", function(event, d) { hideBubble(d); unhighlightLegendItem(d); });
+        .on("mouseout", function(event, d) { hideBubble(d); unhighlightLegendItem(d); })
+        .on("click", function(event, d) { showDescription(d); });
 
   // configure each blip
   blips.each(function(d) {

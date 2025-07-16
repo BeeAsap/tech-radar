@@ -44,7 +44,7 @@ radar_visualization({
   },
   // Some font families might lead to font size issues
   // Arial, Helvetica, or Source Sans Pro seem to work well though
-  font_family: "Arial, Helvetica",
+  font_family: "Segoe UI",
   title: "My Radar",
   quadrants: [
     { name: "Bottom Right" },
@@ -53,24 +53,23 @@ radar_visualization({
     { name: "Top Right" }
   ],
   rings: [
-    { name: "INNER",  color: "#5ba300" },
-    { name: "SECOND", color: "#009eb0" },
-    { name: "THIRD",  color: "#c7ba00" },
-    { name: "OUTER",  color: "#e09b96" }
+    { name: "INNER",  color: "#ff9c5c" },
+    { name: "SECOND", color: "#d9486c" },
+    { name: "THIRD",  color: "#a774d8" },
+    { name: "OUTER",  color: "#346cef" }
   ],
   print_layout: true,
   links_in_new_tabs: true,
   entries: [
    {
       label: "Some Entry",
-      quadrant: 3,          // 0,1,2,3 (counting clockwise, starting from bottom right)
-      ring: 2,              // 0,1,2,3 (starting from inside)
+      quadrant: 0,
+      ring: 1,         
       moved: -1             // -1 = moved out (triangle pointing down)
                             //  0 = not moved (circle)
                             //  1 = moved in  (triangle pointing up)
                             //  2 = new       (star)
    },
-    // ...
   ]
 });
 ```

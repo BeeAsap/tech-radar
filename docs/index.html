@@ -3,10 +3,10 @@
 
 <head>
 <meta http-equiv="Content-type" content="text/html; charset=utf-8">
-<meta name="description" content="Zalando Tech Radar: a tool to visualize technology choices, inspire and support Engineering teams at Zalando to pick the best technologies for new projects">
+<meta name="description" content="The Bechtle Tech Radar">
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Zalando Tech Radar</title>
-<link rel="shortcut icon" href="https://www.zalando.de/favicon.ico">
+<title>Bechtle Tech Radar</title>
+<link rel="shortcut icon" href="https://d2csxpduxe849s.cloudfront.net/media/EE828008-47B8-4245-92ACA41F5C31650E/D5D3F680-205F-4A91-958AC2CE073B6B96/webimage-5227CC2A-3F82-495A-8B7FA20A66D779AC.png">
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script src="radar.js"></script>
@@ -16,7 +16,29 @@
 
 <body>
 
+<header id="page-header">
+  <div class="header-left">
+    <div class="header-title">Bechtle Tech Radar</div>
+    <div id="last-updated" class="header-date"></div>
+  </div>
+  <a href="https://www.bechtle.com/" target="_blank" rel="noopener">
+    <img class="header-logo" src="https://d2csxpduxe849s.cloudfront.net/media/EE828008-47B8-4245-92ACA41F5C31650E/842809D8-1116-4082-8ACDFF28A4AAAB05/webimage-F53BBF6D-D6F9-4E90-8FBCE210CBC3DFB7.png" alt="Bechtle Logo">
+  </a>
+</header>
+
+
 <svg id="radar"></svg>
+
+<div id="bubble-description" style="
+  display: none; 
+  position: absolute; 
+  max-width: 300px; 
+  padding: 10px; 
+  background: #ffffff; 
+  border: 1px solid #000000; 
+  box-shadow: 0 3px 7px rgba(0,0,0,0.2); 
+  z-index: 10;
+"></div>
 
 <script>
 fetch('./config.json').then(function(response) {
@@ -24,7 +46,6 @@ fetch('./config.json').then(function(response) {
 }).then(function(data) {
   radar_visualization({
     repo_url: "https://github.com/zalando/tech-radar",
-    title: "Zalando Tech Radar",
     date: data.date,
     quadrants: [
       { name: "Languages" },
@@ -33,13 +54,17 @@ fetch('./config.json').then(function(response) {
       { name: "Data Management" },
     ],
     rings: [
-      { name: "ADOPT", color: "#5ba300" },
-      { name: "TRIAL", color: "#009eb0" },
-      { name: "ASSESS", color: "#c7ba00" },
-      { name: "HOLD", color: "#e09b96" }
+      { name: "ADOPT", color: "#ff9c5c" },
+      { name: "TRIAL", color: "#d9486c" },
+      { name: "ASSESS", color: "#a774d8" },
+      { name: "HOLD", color: "#346cef" }
     ],
     entries: data.entries
   });
+
+  const [year, month] = data.date.split('.');
+  const monthName = new Date(`${year}-${month}-01`).toLocaleString('default', { month: 'long' });
+  document.getElementById('last-updated').textContent = `Last updated: ${monthName} ${year}`;
 }).catch(function(err) {
   console.log('Error loading config.json', err);
 });
@@ -49,10 +74,6 @@ fetch('./config.json').then(function(response) {
 <tr>
 <td>
 
-<h3>What is the Tech Radar?</h3>
-
-<p>
-The Zalando Tech Radar is a list of technologies, complemented by an assessment result, called <em>ring assignment</em>. We use four rings with the following semantics:
 </p>
 
 <ul>
@@ -62,27 +83,6 @@ The Zalando Tech Radar is a list of technologies, complemented by an assessment 
 <li><strong>HOLD</strong> &mdash; Technologies not recommended to be used for new projects. Technologies that we think are not (yet) worth to (further) invest in. HOLD technologies should not be used for new projects, but usually can be continued for existing projects.</li>
 </ul>
 
-</td><td>
-
-<h3>What is the purpose?</h3>
-
-<p>
-The Tech Radar is a tool to inspire and support Engineering teams at Zalando to pick the best technologies for new projects; it provides a platform to share knowledge and experience in technologies, to reflect on technology decisions and continuously evolve our technology landscape. Based on the <a href="https://www.thoughtworks.com/radar">pioneering work of ThoughtWorks</a>, our Tech Radar sets out the changes in technologies that are interesting in software development &mdash; changes that we think our engineering teams should pay attention to and use in their projects.
-</p>
-
-<h3>How do we maintain it?</h3>
-
-<p>
-The Tech Radar is maintained by our <em>Principal Engineers</em> &mdash; who facilitate and drive the technology selection discussions at Zalando across the Engineering Community. Assignment of technologies to rings is the outcome of ring change proposals, which are discussed and voted on. The Tech Radar is open for contribution for all Engineering teams at Zalando and depends on their active participation to share lessons learned, pitfalls, and contribute to good practices on using the technologies.<br/>
-</p>
-
-<p>
-Check out our <a href="https://engineering.zalando.com/tags/tech-radar.html">Engineering Blog</a> for more information on how we approach Technology Selection and use the Tech Radar at Zalando.
-</p>
-
-<p>
-<em>BTW, if you would like to create your own Tech Radar &mdash; we have <a href="https://github.com/zalando/tech-radar">open sourced the code</a> to generate this visualization.</em>
-</p>
 
 </td></tr>
 </table>

@@ -1,25 +1,70 @@
-body {
-  font-family: 'Source Sans Pro', arial, helvetica, sans-serif;
-  padding-bottom: 50px;
-}
-h3 {
-  margin-top: 50px;
-}
-li {
-  margin: 25px 50px 0 0;
-}
-table {
-  width: 1400px;
-  margin: 0 50px 0 50px;
-}
-td {
-  width: 50%;
-  vertical-align: top;
-  padding-right: 60px;
-}
-.hover-underline {
-  text-decoration: none;
-}
-.hover-underline:hover {
-  text-decoration: underline;
-}
+  body {
+    font-family: "Segoe UI";
+    padding-bottom: 50px;
+    text-align: center;
+    
+  }
+  h3 {
+    margin-top: 50px;
+  }
+  li {
+    margin: 25px 50px 0 0;
+  }
+  table {
+    margin: 0 auto;           /* Horizontally center the table */
+    text-align: left;         /* Keep text left-aligned inside the cells */
+    max-width: 1000px;        /* Optional: limits how wide the table can get */
+    padding: 0 20px;          /* Optional: adds horizontal spacing */
+  }
+
+  td {
+    width: 50%;
+    vertical-align: top;
+    padding-right: 60px;
+  }
+  .hover-underline {
+    text-decoration: none;
+  }
+  .hover-underline:hover {
+    text-decoration: underline;
+  }
+  #page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 30px;
+    height: 70px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #ccc;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+
+  .header-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .header-title {
+    font-size: 35px;
+    font-weight: 800;
+    color: #000000;
+    font-family: "Segoe UI", sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+
+  .header-date {
+    font-size: 14px;
+    color: #555;
+    font-family: "Segoe UI", sans-serif;
+  }
+
+  .header-logo {
+    height: 40px;
+    width: auto;
+    max-width: 200px;
+  }
