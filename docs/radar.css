@@ -61,10 +61,53 @@
     font-size: 14px;
     color: #555;
     font-family: "Segoe UI", sans-serif;
+    text-align: left;
   }
 
   .header-logo {
     height: 40px;
     width: auto;
     max-width: 200px;
+  }
+  .search-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 320px;
+  }
+  #search-input.highlight-found {
+  border-color: #21B068;  /* green border */
+  box-shadow: 0 0 8px #21B068; /* subtle glowing effect */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  #search-input {
+    width: 100%;
+    padding: 10px 40px 10px 12px; /* right padding to make room for button */
+    font-size: 16px;
+    border: 2px solid #19764A;
+    border-radius: 25px;
+    outline: none;
+    transition: border-color 0.3s ease;
+  }
+
+  #search-input:focus {
+    border-color: #21B068;
+    box-shadow: 0 0 5px rgba(33,176,104, 0.5);
+  }
+
+  #search-button {
+    position: absolute;
+    right: -30px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    font-size: 18px;
+    cursor: pointer;
+    color: #19764A;
+    padding: 5px;
+    transition: color 0.3s ease;
+  }
+
+  #search-button:hover {
+    color: #21B068;
   }

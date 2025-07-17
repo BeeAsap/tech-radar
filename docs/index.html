@@ -5,20 +5,30 @@
 <meta http-equiv="Content-type" content="text/html; charset=utf-8">
 <meta name="description" content="The Bechtle Tech Radar">
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Bechtle Tech Radar</title>
+<title>Bechtle Cloud Tech Radar</title>
 <link rel="shortcut icon" href="https://d2csxpduxe849s.cloudfront.net/media/EE828008-47B8-4245-92ACA41F5C31650E/D5D3F680-205F-4A91-958AC2CE073B6B96/webimage-5227CC2A-3F82-495A-8B7FA20A66D779AC.png">
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script src="radar.js"></script>
 
 <link rel="stylesheet" href="radar.css">
+
+<style>
+  /* Highlight input border when a match is found */
+  .highlight-found {
+    border-color: #21B068 !important;
+    box-shadow: 0 0 5px rgba(33, 176, 104, 0.6);
+    outline: none;
+  }
+</style>
+
 </head>
 
 <body>
 
 <header id="page-header">
   <div class="header-left">
-    <div class="header-title">Bechtle Tech Radar</div>
+    <div class="header-title">Bechtle Cloud Tech Radar</div>
     <div id="last-updated" class="header-date"></div>
   </div>
   <a href="https://www.bechtle.com/" target="_blank" rel="noopener">
@@ -26,6 +36,19 @@
   </a>
 </header>
 
+<div class="search-wrapper" style="margin: 20px 50px; max-width: 320px;">
+  <input 
+    type="text" 
+    id="search-input" 
+    placeholder="Search Tech Radar..." 
+    aria-label="Search Tech Radar"
+    oninput="searchRadar()"
+  />
+  <!-- You can keep or remove the button below -->
+  <button id="search-button" aria-label="Search" onclick="searchRadar()">
+    Search 
+  </button>
+</div>
 
 <svg id="radar"></svg>
 
@@ -48,16 +71,16 @@ fetch('./config.json').then(function(response) {
     repo_url: "https://github.com/zalando/tech-radar",
     date: data.date,
     quadrants: [
-      { name: "Languages" },
+      { name: "Governance & Compliance" },
       { name: "Infrastructure" },
-      { name: "Datastores" },
-      { name: "Data Management" },
+      { name: "Platform Tooling" },
+      { name: "Managed Cloud Services" },
     ],
     rings: [
-      { name: "ADOPT", color: "#ff9c5c" },
-      { name: "TRIAL", color: "#d9486c" },
-      { name: "ASSESS", color: "#a774d8" },
-      { name: "HOLD", color: "#346cef" }
+      { name: "ADOPT", color: "#02180f" },
+      { name: "TRIAL", color: "#19764A" },
+      { name: "ASSESS", color: "#21B068" },
+      { name: "HOLD", color: "#2ffb95" }
     ],
     entries: data.entries
   });
@@ -68,6 +91,54 @@ fetch('./config.json').then(function(response) {
 }).catch(function(err) {
   console.log('Error loading config.json', err);
 });
+function searchRadar() {
+  const inputEl = document.getElementById("search-input");
+  const searchTerm = inputEl.value.trim().toLowerCase();
+  if (!searchTerm) {
+    inputEl.classList.remove("highlight-found");
+    return;
+  }
+
+  const entries = d3.selectAll(".blip").data();
+  const matched = entries.find(entry => entry.label.toLowerCase().includes(searchTerm));
+
+  if (matched) {
+    inputEl.classList.add("highlight-found");  // Add highlight
+
+    // Show description popup
+    showDescription(matched);
+
+    // Highlight legend item
+    highlightLegendItem(matched);
+    setTimeout(() => {
+      unhighlightLegendItem(matched);
+    }, 3000);
+
+    const svg = d3.select("#radar");
+    svg.append("circle")
+      .attr("cx", matched.x + 725) // assumes radar center at 725,500
+      .attr("cy", matched.y + 500)
+      .attr("r", 20)
+      .attr("fill", "none")
+      .attr("stroke", "red")
+      .attr("stroke-width", 3)
+      .attr("class", "search-highlight");
+
+    // Remove highlight after 5 seconds & remove input highlight after 3 seconds
+    setTimeout(() => {
+      d3.selectAll(".search-highlight").remove();
+    }, 5000);
+    setTimeout(() => {
+      inputEl.classList.remove("highlight-found");
+    }, 3000);
+
+    // Scroll SVG into view
+    document.getElementById("radar").scrollIntoView({ behavior: "smooth", block: "start" });
+  } else {
+    alert("No match found.");
+    inputEl.classList.remove("highlight-found");  // Remove highlight if none found
+  }
+}
 </script>
 
 <table>

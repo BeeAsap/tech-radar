@@ -221,6 +221,22 @@ function radar_visualization(config) {
 
   var grid = radar.append("g");
 
+  var ringBackground = radar.append("g").attr("class", "ring-backgrounds");
+  for (let i = config.rings.length - 1; i >= 0; i--) {
+    let innerRadius = i === 0 ? 0 : rings[i - 1].radius;
+    let outerRadius = rings[i].radius;
+
+    ringBackground.append("path")
+      .attr("d", d3.arc()
+        .innerRadius(innerRadius)
+        .outerRadius(outerRadius)
+        .startAngle(0)
+        .endAngle(2 * Math.PI)
+      )
+      .attr("fill", config.rings[i].color)
+      .attr("opacity", 0.25);
+  }
+
   // define default font-family
   config.font_family = config.font_family || "Segoe UI";
 
@@ -498,32 +514,61 @@ function radar_visualization(config) {
 
     currentlyVisibleDescriptionId = d.id;
   }
-
+  
+  function legend_transform_coordinates(quadrant, ring, column_width, index) {
+    const angle = (Math.PI / 2) * quadrant + (Math.PI / 4);
+    const radius = 100 + ring * 100;
+    const x = Math.cos(angle) * radius;
+    const y = Math.sin(angle) * radius;
+    return { x, y };
+  }
 
   // draw blips on radar
   var blips = rink.selectAll(".blip")
     .data(config.entries)
     .enter()
       .append("g")
-        .attr("class", "blip")
-        .attr("transform", function(d, i) { return legend_transform(d.quadrant, d.ring, config.legend_column_width, i); })
-        .on("mouseover", function(event, d) { showBubble(d); highlightLegendItem(d); })
-        .on("mouseout", function(event, d) { hideBubble(d); unhighlightLegendItem(d); })
-        .on("click", function(event, d) { showDescription(d); });
+      .attr("class", "blip")
+      .attr("transform", function(d) {
+         return `translate(${d.x},${d.y})`;
+      })
+      .style("opacity", 0)
+      .on("mouseover", function (event, d) {
+        showBubble(d);
+      })
+      .on("mouseout", function (event, d) {
+        hideBubble(d);
+      })
+      .on("click", function (event, d) {
+        showDescription(d);
+      });
+
+  // Animate bubbles to fade in
+  blips.transition()
+    .duration(400)
+    .delay((d, i) => i * 50)
+    .style("opacity", 1);
+
+  blips.select("circle")
+    .attr("r", 0)
+    .transition()
+    .duration(400)
+    .delay((d, i) => i * 50)
+    .attr("r", 9);
 
   // configure each blip
   blips.each(function(d) {
     var blip = d3.select(this);
 
-    // blip link
-    if (d.active && Object.prototype.hasOwnProperty.call(d, "link") && d.link) {
-      blip = blip.append("a")
-        .attr("xlink:href", d.link);
+    // // blip link
+    // if (d.active && Object.prototype.hasOwnProperty.call(d, "link") && d.link) {
+    //   blip = blip.append("a")
+    //     .attr("xlink:href", d.link);
 
-      if (config.links_in_new_tabs) {
-        blip.attr("target", "_blank");
-      }
-    }
+    //   if (config.links_in_new_tabs) {
+    //     blip.attr("target", "_blank");
+    //   }
+    // }
 
     // blip shape
     if (d.moved == 1) {
@@ -623,4 +668,26 @@ function radar_visualization(config) {
   if (config.print_ring_descriptions_table) {
     ringDescriptionsTable();
   }
+
+  if (config.print_ring_descriptions_table) {
+    ringDescriptionsTable();
+  }
+
+  // Hide description when clicking outside
+  document.addEventListener("click", function(event) {
+    const box = document.getElementById("bubble-description");
+    if (!box) return;
+
+    const bubbleVisible = box.style.display === "block";
+    if (!bubbleVisible) return;
+
+    // Check if the click target is inside the description box or on a blip
+    const clickedInsideDescription = box.contains(event.target);
+    const clickedOnBlip = event.target.closest(".blip");
+
+    if (!clickedInsideDescription && !clickedOnBlip) {
+      box.style.display = "none";
+      currentlyVisibleDescriptionId = null;
+    }
+  });
 }
