@@ -31,7 +31,7 @@ function radar_visualization(config) {
       background: "#ffffffff",
       grid: '#c3c3c3',
       inactive: "#ddd"
-    };
+  };
   config.print_layout = ("print_layout" in config) ? config.print_layout : true;
   config.links_in_new_tabs = ("links_in_new_tabs" in config) ? config.links_in_new_tabs : true;
   config.repo_url = config.repo_url || '#';
@@ -211,7 +211,7 @@ function radar_visualization(config) {
     .style("background-color", config.colors.background)
     .attr("width", scaled_width)
     .attr("height", scaled_height);
-
+   
   var radar = svg.append("g");
   if ("zoomed_quadrant" in config) {
     svg.attr("viewBox", viewbox(config.zoomed_quadrant));
@@ -332,7 +332,7 @@ function radar_visualization(config) {
       .text("▲ moved up     ▼ moved down     ★ new     ⬤ no change")
       .attr("xml:space", "preserve")
       .style("font-family", config.font_family)
-      .style("font-size", "12px");
+      .style("font-size", "14px")
 
     // legend
     const legend = radar.append("g");
@@ -514,17 +514,9 @@ function radar_visualization(config) {
 
     currentlyVisibleDescriptionId = d.id;
   }
-  
-  function legend_transform_coordinates(quadrant, ring, column_width, index) {
-    const angle = (Math.PI / 2) * quadrant + (Math.PI / 4);
-    const radius = 100 + ring * 100;
-    const x = Math.cos(angle) * radius;
-    const y = Math.sin(angle) * radius;
-    return { x, y };
-  }
 
-  // draw blips on radar
-  var blips = rink.selectAll(".blip")
+  // draw blip on radar
+  var blip = rink.selectAll(".blip")
     .data(config.entries)
     .enter()
       .append("g")
@@ -543,22 +535,26 @@ function radar_visualization(config) {
         showDescription(d);
       });
 
-  // Animate bubbles to fade in
-  blips.transition()
+  // Animate fade-in and circle growth
+  blip.transition()
     .duration(400)
     .delay((d, i) => i * 50)
     .style("opacity", 1);
 
-  blips.select("circle")
-    .attr("r", 0)
-    .transition()
-    .duration(400)
-    .delay((d, i) => i * 50)
-    .attr("r", 9);
-
   // configure each blip
-  blips.each(function(d) {
+  blip.each(function(d) {
     var blip = d3.select(this);
+  
+    blip.append("circle")
+      .attr("r", 0)
+      .attr("fill", function(d) {
+        return config.rings[d.ring].color;
+      })
+      .attr("class", "blip-circle")
+      .transition()
+      .duration(400)
+      .delay((d, i) => i * 50)
+      .attr("r", 9);
 
     // // blip link
     // if (d.active && Object.prototype.hasOwnProperty.call(d, "link") && d.link) {
@@ -604,19 +600,19 @@ function radar_visualization(config) {
     }
   });
 
-  // make sure that blips stay inside their segment
+  // make sure that blip stay inside their segment
   function ticked() {
-    blips.attr("transform", function(d) {
+    blip.attr("transform", function(d) {
       return translate(d.segment.clipx(d), d.segment.clipy(d));
     })
   }
 
-  // distribute blips, while avoiding collisions
-  d3.forceSimulation()
-    .nodes(config.entries)
-    .velocityDecay(0.19) // magic number (found by experimentation)
-    .force("collision", d3.forceCollide().radius(12).strength(0.85))
-    .on("tick", ticked);
+  // distribute blip, while avoiding collisions
+    d3.forceSimulation()
+      .nodes(config.entries)
+      .velocityDecay(0.19) // magic number (found by experimentation)
+      .force("collision", d3.forceCollide().radius(12).strength(0.85))
+      .on("tick", ticked);
 
   function ringDescriptionsTable() {
     var table = d3.select("body").append("table")
@@ -669,10 +665,6 @@ function radar_visualization(config) {
     ringDescriptionsTable();
   }
 
-  if (config.print_ring_descriptions_table) {
-    ringDescriptionsTable();
-  }
-
   // Hide description when clicking outside
   document.addEventListener("click", function(event) {
     const box = document.getElementById("bubble-description");
@@ -690,4 +682,89 @@ function radar_visualization(config) {
       currentlyVisibleDescriptionId = null;
     }
   });
+
+  function setupExportButtons() {
+    // ----- SVG Export Button -----
+    const svgButton = document.createElement("button");
+    svgButton.textContent = "Export as SVG";
+    styleExportButton(svgButton, 140);
+    svgButton.onclick = () => {
+      const svgEl = document.getElementById("radar");
+      const serializer = new XMLSerializer();
+      const svgBlob = new Blob([serializer.serializeToString(svgEl)], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(svgBlob);
+
+      const downloadLink = document.createElement("a");
+      downloadLink.href = url;
+      downloadLink.download = "bechtle-tech-radar.svg";
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      URL.revokeObjectURL(url);
+    };
+
+    // ----- PNG Export Button -----
+    const pngButton = document.createElement("button");
+    pngButton.textContent = "Export as PNG";
+    styleExportButton(pngButton, 80);
+    pngButton.onclick = () => {
+      const svgEl = document.getElementById("radar");
+      const svgData = new XMLSerializer().serializeToString(svgEl);
+      const canvas = document.createElement("canvas");
+      canvas.width = svgEl.clientWidth;
+      canvas.height = svgEl.clientHeight;
+      const ctx = canvas.getContext("2d");
+
+      const img = new Image();
+      const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(svgBlob);
+
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0);
+        URL.revokeObjectURL(url);
+        const pngUrl = canvas.toDataURL("image/png");
+
+        const downloadLink = document.createElement("a");
+        downloadLink.href = pngUrl;
+        downloadLink.download = "bechtle-tech-radar.png";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      };
+
+      img.src = url;
+    };
+
+    // Add both buttons
+    document.body.appendChild(svgButton);
+    document.body.appendChild(pngButton);
+  }
+
+  // 🔧 Shared styling function for both buttons
+  function styleExportButton(button, bottomOffset) {
+    button.style.position = "fixed";
+    button.style.right = "20px";
+    button.style.bottom = `${bottomOffset}px`;
+    button.style.zIndex = 9999;
+    button.style.padding = "10px 16px";
+    button.style.background = "#21B068";
+    button.style.color = "white";
+    button.style.border = "none";
+    button.style.borderRadius = "6px";
+    button.style.cursor = "pointer";
+    button.style.fontSize = "14px";
+    button.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
+    button.style.transition = "background 0.3s ease";
+    button.onmouseenter = () => button.style.background = "#16824f";
+    button.onmouseleave = () => button.style.background = "#21B068";
+  }
+  window.addEventListener("DOMContentLoaded", setupExportButtons);
+  window.showDescription = showDescription;
+  window.highlightLegendItem = highlightLegendItem;
+  window.unhighlightLegendItem = unhighlightLegendItem;
+  window.config = config;
+  window.currentlyVisibleDescriptionId = null
+  window.setupExportButtons = setupExportButtons;
+  
+  setupExportButtons();
 }

@@ -16,7 +16,8 @@
       "label": "JSF",
       "active": true,
       "moved": 0,
-      "description": ""
+      "description": "",
+      "link": ""
     },
     {
       "quadrant": 0,
@@ -24,7 +25,17 @@
       "label": "Kubernetes",
       "active": true,
       "moved": 0,
-      "description": ""
+      "description": "",
+      "link": ""
+    },
+    {
+      "quadrant": 2,
+      "ring": 3,
+      "label": "DevOps",
+      "active": true,
+      "moved": 0,
+      "description": "",
+      "link": ""
     }
   ]
 }
